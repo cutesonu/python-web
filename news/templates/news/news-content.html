@@ -1,0 +1,27 @@
+{% load staticfiles %}
+{% load app_filter %}
+
+{% if news_list %}
+    {% for news_article in news_list %}
+        <div id="article_{{ news_article.id }}" class="news-single-item">
+            <div class="news-single-thumb">
+                {% if news_article.featured and news_article.featured_image %}
+                <img src="{{ news_article.featured_image.url}}" alt="">
+                {% else %}
+                <img src="{{ news_article.portal_image }}" alt="">
+                {% endif %}
+            </div>
+            <div class="news-single-content">
+                <p class="news-category">NEWS // {{ news_article.category.all|first }}</p>
+                <h3 class="news-title">{{ news_article.title }}</h3>
+                <p class="news-author">by <a href="/c/people/{{ news_article.owner.id }}">{{ news_article.owner.username }}</a></p>
+                <p class="news-description">
+                    {{ news_article.article | snippet }}</p>
+
+                <a href="{{ news_article.id }}-{{ news_article.title| slugify }}" class="read-more">Keep reading &rarr;</a>
+            </div>
+        </div><!-- /.news-single-item -->
+    {% endfor %}
+{% else %}
+    <p style="display: block;">No Articles</p>
+{% endif %}

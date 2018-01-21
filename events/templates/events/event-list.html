@@ -1,0 +1,263 @@
+{% extends 'events/base.html' %}
+{% block content %}
+
+    {% load staticfiles %}
+    {% load notifications_tags %}
+    {% load app_filter %}
+    <link href="{% static 'events/css/event-custom.css' %}" rel="stylesheet">
+
+    <header id="masthead" class="site-header event-list-header">
+        {% include 'events/top-nav.html' %}
+    </header><!-- /#header -->
+
+    <div id="main" class="site-main">
+
+        <section class="events-info">
+
+            <div class="container">
+
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <div class="events-info-inner">
+                            <h2>Events</h2>
+                            <p>{{ event_count }} events,<br>
+                                {{ user_all }} members,<br>
+                                365 days a year</p>
+
+                            <p>Share or attend events here.</p>
+                        </div><!-- /.events-info-inner -->
+                    </div>
+
+                    <div class="col-sm-6">
+                        <form class="event-form">
+
+                            <div class="form-group">
+                                <a class="btn btn-dark" id="search_top" href="#filter_bar">Search events</a>
+                                <button class="btn btn-transparent-dark" type="button" data-toggle="modal"
+                                        data-target="#create-event-modal">Create new event
+                                </button>
+                            </div>
+                        </form><!-- /.event-form -->
+                    </div>
+                </div>
+            </div>
+        </section><!-- /.events-info -->
+
+        <section class="next-events">
+
+            <div class="container container-960">
+
+                <div class="row">
+                    {% for event_top in event_top_list %}
+                        <div class="col-sm-6">
+                            <p class="news-category">{{ event_top.start_date|date:"fA j N Y" }}</p>
+                            <h2 class="news-title">{{ event_top.title }}</h2>
+                            <p class="news-description"><span class="posted-by">posted by<br> <a
+                                    href="{{ event_top.id }}">{{ event_top.author }}</a></span>
+                                <a href="{{ event_top.id }}" class="rsvp-btn">View Details</a></p>
+
+                        </div>
+                    {% endfor %}
+
+                </div>
+            </div><!-- /.container -->
+        </section><!-- /.next-events -->
+
+        <section id="filter_bar" class="events-list">
+            <div class="container container-960">
+                <div class="filters-fix">
+                    <div class="filters-wrapper">
+                        <div class="events-filter ">
+                            <ul class="list-unstyled">
+                                <li><a id="search" href="#filter_bar">Search events</a></li>
+                                <li class="user-tags"><a href="javascript:newEvent();">New</a></li>
+                                <li class="user-tags"><a href="javascript:featuredEvent();">Featured</a></li>
+                            </ul>
+                            <a href="javascript:allEvent();" class="all-events pull-right">All Events...</a>
+                        </div><!-- /.events-filter -->
+
+                        <div id="search-form" class="row" style="display: none; padding-left: 7%">
+                            <input id="searchBar" class="form-control" type="text"
+                                   placeholder="keyword..." style="width: 100%;" onkeyup="realFilter(event)"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loader" style="display: block; margin-top: 10%"></div>
+
+                <div id="event_items">
+                    {% include 'events/event-content.html' %}
+
+
+
+</div>
+            </div><!-- /.container-fluid -->
+        </section><!-- /.events-list -->
+
+    </div><!-- /#main -->
+
+    <div id="create-event-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+
+                <div class="modal-body">
+
+                    <div class="modal-body-left" style="width: 100%">
+
+                        <h4 class="modal-title">Add Event</h4>
+                        <form class="create-event-form" method="post" action="create/"
+                              enctype="multipart/form-data">{% csrf_token %}
+                            <div class="form-group">
+                                <label for="event-name">Title</label>
+                                <input type="text" id="event-name" name="title" class="form-control"
+                                       placeholder="Some event">
+                            </div>
+                            <div class="form-group">
+                                <label for="startdatetime">Start date & time</label>
+                                <input type="text" id="startdatetime" class="form-control" name="startdatetime"/>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="enddatetime">End date & time</label>
+                                <input type="text" id="enddatetime" class="form-control" name="enddatetime"/>
+
+                            </div>
+                            <div class="form-group">
+                                <label for="event-url">Event URL</label>
+                                <input type="text" id="event-url" class="form-control" name="event-url">
+                            </div>
+
+                            <div class="modal-form-buttons">
+                                <a data-dismiss="modal" class="pull-left close-btn " href="#">Close</a>
+                                <button class="btn btn-dark pull-right" type="submit" style="width: 30%">Add Event
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /#create-event-modal -->
+
+    {#    <div id="list-notification-modal" class="modal fade" tabindex="-1" role="dialog">#}
+    {#        <div class="modal-dialog" role="document">#}
+    {#            <div class="modal-content">#}
+    {##}
+    {#                <div class="modal-body">#}
+    {##}
+    {#                    <div class="modal-body-left" style="width: 100%">#}
+    {##}
+    {#                        <h4 class="modal-title">Notifications List</h4>#}
+    {##}
+    {#                        <table class="admin-table table">#}
+    {#                            <thead>#}
+    {#                            <tr>#}
+    {#                                <th>Event Title</th>#}
+    {#                                <th>Event Content</th>#}
+    {#                                <th class="text-right">Actions</th>#}
+    {#                            </tr>#}
+    {#                            </thead>#}
+    {#                            <tbody>#}
+    {#                            {% if unread.unread_exist %}#}
+    {#                                {% for item in unread.content %}#}
+    {#                                    <tr>#}
+    {#                                        <td><a href="{{ item.target_object_id }}?notify={{ item.id }}"><p><strong#}
+    {#                                                style="color: #006dcc">{{ item.target }}</strong></p>#}
+    {#                                        </a></td>#}
+    {#                                        <td>#}
+    {#                                            <p style="color: black">{{ item.description }}</p>#}
+    {#                                        </td>#}
+    {#                                        <td><p style="color: #ba2121">Remind</p></td>#}
+    {#                                    </tr>#}
+    {#                                {% endfor %}#}
+    {#                            {% elif unread.other_exist %}#}
+    {#                                {% for item in unread.other_content %}#}
+    {#                                    <tr>#}
+    {#                                        <td><a href="{{ item.target_object_id }}"><p><strong#}
+    {#                                                style="color: green">{{ item.target }}</strong></p>#}
+    {#                                        </a></td>#}
+    {#                                        <td>#}
+    {#                                            <p style="color: black">{{ item.description }}</p>#}
+    {#                                        </td>#}
+    {#                                        <td><p style="color: #006dcc">Pending</p></td>#}
+    {#                                    </tr>#}
+    {#                                {% endfor %}#}
+    {#                            {% else %}#}
+    {#                                <tr>#}
+    {#                                    <td><p style="color: #006dcc">No contents</p></td>#}
+    {#                                <td></td>#}
+    {#                          0      <td></td>#}
+    {#                                </tr>#}
+    {#                            {% endif %}#}
+    {#                            </tbody>#}
+    {#                        </table>#}
+    {#                        <div class="modal-form-buttons">#}
+    {#                            <a data-dismiss="modal" class="pull-left close-btn" href="#">Close</a>#}
+    {#                            <button data-dismiss="modal" class="btn btn-dark pull-right" style="width: 30%">OK#}
+    {#                            </button>#}
+    {#                        </div>#}
+    {#                    </div>#}
+    {##}
+    {#                </div>#}
+    {#            </div><!-- /.modal-content -->#}
+    {#        </div><!-- /.modal-dialog -->#}
+    {#    </div><!-- /#create-event-modal -->#}
+
+{% endblock %}
+
+{% block customscript %}
+    <script src="{% static 'events/js/event-page-search.js' %}"></script>
+    <script>
+        function update_item() {
+            loading();
+            if (method === 'new') {
+                console.log(value);
+                $('#event_items').html('').load(
+                    "{% url 'newEvents' %}?week_num=" + week_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+
+            else if (method === 'feature') {
+                $('#event_items').html('').load(
+                    "{% url 'featureEvents' %}?week_num=" + week_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+
+            else if (method === 'search') {
+                $('#event_items').html('').load(
+                    "{% url 'searchEvents' %}?keyword=" + value + "&&week_num=" + week_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+            else {
+                $('#event_items').html('').load(
+                    "{% url 'updateEvents' %}?week_num=" + week_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+        }
+
+        $("#startdatetime").on('change', function (e) {
+            $('#enddatetime').data("datetimepicker").startDate = new Date(e.target.value);
+        });
+        $("#enddatetime").on('change', function (e) {
+            $('#startdatetime').data("datetimepicker").endDate = new Date(e.target.value);
+        });
+
+    </script>
+{% endblock %}

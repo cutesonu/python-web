@@ -1,0 +1,407 @@
+{% extends 'perks/base.html' %}
+{% block content %}
+
+    {% load staticfiles %}
+    {% load app_filter %}
+<style>
+         .site-header {
+        {% if feature_list.0.featured_image %}
+            background: url({{ feature_list.0.featured_image.url }}) no-repeat center / cover;
+        {% else %}
+            background: url({% static 'news/img/ybf-bg.jpg' %}) no-repeat center / cover;
+        {% endif %}
+            height: 480px;
+            position: relative;
+        }
+
+        .featured-news:before{
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+        {% if feature_list.1.featured_image %}
+            background: url({{ feature_list.1.featured_image.url }}) no-repeat center / cover;
+        {% else %}
+            background: url({% static 'news/img/bg-tmp.jpg' %}) no-repeat center / cover;
+        {% endif %}
+            z-index: -1;
+        }
+        .featured-news:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            {% if feature_list.2.featured_image %}
+            background: url({{ feature_list.2.featured_image.url }}) no-repeat center / cover;
+        {% else %}
+            background: url({% static 'news/img/bg-tmp.jpg' %}) no-repeat center / cover;
+        {% endif %}
+            z-index: -1;
+        }
+    </style>
+    <link href="{% static 'news/css/news-custom.css' %}" rel="stylesheet">
+    <body>
+
+    {% if featured_image %}
+        <header id="masthead" class="site-header" style="background:{{ featured_image.url }} no-repeat center / cover;">
+    {% else %}
+        <header id="masthead" class="site-header"
+                style="background:{% static 'perks/img/ybf-bg.jpg' %} no-repeat center / cover;">
+    {% endif %}
+
+{% include 'perks/top-nav.html' %}
+
+<div class="hero event-details-hero">
+
+    <div class="container">
+
+        <div class="hero-text">
+            <p class="news-category">Perks // {{ feature_list.0.category.all|first }}</p>
+            <h1 class="hero-title">{{ feature_list.0.title }}</h1>
+            <p>by <a href="#" class="no-underline">{{ feature_list.0.owner.username }}</a></p>
+            <a href="{{ feature_list.0.id }}" class="read-more">Keep reading &rarr;</a>
+        </div>
+
+    </div>
+
+</div>
+
+</header><!-- /#header -->
+
+    <div id="main" class="site-main">
+
+        <section class="featured-news">
+
+            <div class="container container-960">
+
+                <div class="row">
+
+                    {% if feature_list.1 %}
+                        <div class="col-sm-6">
+
+                            <p class="news-category">Perks // {{ feature_list.1.category.all|first }}</p>
+                            <h2 class="news-title">{{ feature_list.1.title }}</h2>
+                            <p class="posted-by">by <a href="#">{{ feature_list.1.owner.username }}</a></p>
+                            <p class="news-description">{{ feature_list.1.article|safe|shortsnippet }}</p>
+                            <a href="{{ feature_list.1.id }}" class="read-more">Keep reading &rarr;</a>
+
+                        </div>
+                    {% endif %}
+                    {% if feature_list.2 %}
+                        <div class="col-sm-6">
+
+                            <p class="news-category">Perks // {{ feature_list.2.category.all|first }}</p>
+                            <h2 class="news-title">{{ feature_list.2.title }}</h2>
+                            <p class="posted-by">by <a href="#">{{ feature_list.2.owner.username }}</a></p>
+                            <p class="news-description">{{ feature_list.2.article|safe|shortsnippet }}</p>
+                            <a href="{{ feature_list.2.id }}" class="read-more">Keep reading &rarr;</a>
+
+                        </div>
+                    {% endif %}
+
+                </div>
+
+            </div><!-- /.container -->
+
+        </section><!-- /.next-events -->
+
+        <section id="filter_bar" class="news-page">
+
+            <div class="container container-960">
+
+                <div class="filters-fix">
+
+                    <div class="filters-wrapper">
+
+                        <div class="events-filter ">
+                            <span class="filter-label">
+                                <ul class="list-unstyled">
+                                    <li><a id="search" href="javascript:void(0)">Search</a></li>
+                                    {% for category in category_list %}
+                                        {% if  category != "" %}
+                                            <li class="user-tags"><a href="javascript:void(0)"
+                                                   onclick="clickTag('{{ category }}');">{{ category }}</a></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </span>
+                            <a href="javascript:void(0)" class="all-events pull-right" onclick="clickAllArticles();">All
+                                Articles...</a>
+                        </div>
+                            <div id="search-form" class="container col-sm-12" style="display: none; padding-left: 7%">
+                                <div class="row">
+                                    <div class="controls">
+                                        <input id="searchBar" class="form-control" type="text" placeholder="keyword..."
+                                               onkeyup="realFilter(event)"
+                                               style="width: 100%; "/>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
+                <div class="loader" style="display: block; margin-top: 10%"></div>
+                <div id="article_list" class="news-page-list" style="display: none;">
+
+                    {% include 'perks/news-content.html' %}
+
+                </div><!-- /.news-list -->
+
+                <nav aria-label="Events list navigation" style="display: block;">
+                    <ul class="pagination">
+                        <li class="text-pagination" id="previous_page">
+                            <a href="javascript:previous_week();" aria-label="Previous">
+                                <span aria-hidden="true">&larr; Prev Page</span>
+                            </a>
+                        </li>
+                        <li class="text-pagination" id="next_page">
+                            <a href="javascript:next_week();" aria-label="Next">
+                                <span aria-hidden="true">Next Page &rarr;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+            </div><!-- /.container -->
+        </section><!-- /.news-page -->
+    </div><!-- /#main -->
+
+
+    <footer id="colophon" class="site-footer pages-footer">
+
+        <div class="container container-960">
+
+            <div class="row">
+
+                <div class="footer-col">
+                    <a href="#" class="site-logo" rel="home"><img src="{% static 'perks/img/logo.png' %}" alt=""></a>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>News</h4>
+                    <ul>
+                        <li><a href="#">Current</a></li>
+                        <li><a href="#">Archive</a></li>
+                        <li><a href="#">Submit a story</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Events</h4>
+                    <ul>
+                        <li><a href="#">Browse</a></li>
+                        <li><a href="#">Attending</a></li>
+                        <li><a href="#">Manage</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Startups</h4>
+                    <ul>
+                        <li><a href="#">Browse</a></li>
+                        <li><a href="#">Manage</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Companies</h4>
+                    <ul>
+                        <li><a href="#">Browse</a></li>
+                        <li><a href="#">Manage</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Jobs</h4>
+                    <ul>
+                        <li><a href="#">Browse</a></li>
+                        <li><a href="#">Manage</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Officespace</h4>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Profile</h4>
+                    <ul>
+                        <li><a href="#">Your Activity</a></li>
+                        <li><a href="#">Edit Profile</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">Support</a></li>
+                        <li><a href="#">About YBF</a></li>
+                        <li><a href="#">Terms of service</a></li>
+                        <li><a href="#">Legal</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+                <div class="footer-col pull-right text-right">
+                    <ul>
+                        <li><a href="#">Twitter</a></li>
+                        <li><a href="#">Instagram</a></li>
+                        <li><a href="#">Facebook</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                    </ul>
+                </div><!-- /.footer-col -->
+
+            </div>
+
+        </div><!-- /.container -->
+
+    </footer><!-- /#footer -->
+
+{% endblock %}
+
+{% block customscript %}
+
+    <script>
+        var pg_num;
+        var totalPages;
+        var method;
+        var value;
+
+        $(document).ready(function () {
+            check_loading();
+            pg_num = 1;
+            totalPages = "{{ total_pages }}";
+            // visible or invisible search box.
+            $('#search').click(function () {
+                console.log('search');
+
+                if ($("#search-form").is(':visible')) {
+                    $("#search-form").fadeOut();
+                } else {
+                    $("#search-form").fadeIn();
+                }
+            });
+
+            $(document.body).click(function (e) {
+                //Hide the search bar if visible
+                if (e.target.id !== "searchBar" && e.target.id !== "search" && e.target.id !== "contentCheck" && e.target.id !== "categoryCheck") {
+                    document.getElementById("searchBar").value = "";
+                    $("#search-form").hide();
+                }
+            });
+
+
+        });
+
+        function check_loading() {
+            var everythingLoaded = setInterval(function () {
+                if (document.readyState === 'complete') {
+                    clearInterval(everythingLoaded);
+                    loaded(); // this is the function that gets called when everything is loaded
+                }
+            }, 10);
+
+        }
+
+        function loaded() {
+            console.log('loaded');
+            $('.loader').hide();
+            $("#article_list").show();
+
+        }
+
+        function loading() {
+            $('.loader').show();
+            $("#article_list").hide();
+        }
+
+        function update_item() {
+            loading();
+            if (method === 'category') {
+                console.log(value);
+                $('#article_list').html('').load(
+                    "{% url 'categoryPerks' %}?category=" + value + "&&pg_num=" + pg_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+            else if (method === 'search') {
+                $('#article_list').html('').load(
+                    "{% url 'searchPerks' %}?keyword=" + value + "&&pg_num=" + pg_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+            else {
+                $('#article_list').html('').load(
+                    "{% url 'updatePerks' %}?pg_num=" + pg_num, function (response, status, xhr) {
+                        if (status === "success") {
+                            loaded();
+                        }
+                    }
+                );
+            }
+        }
+
+        function clickTag(category) {
+            method = "category";
+            value = category.replace(" ", "-");
+            pg_num = 1;
+            update_item(value);
+
+        }
+
+        function realFilter(e) {
+            if (e.keyCode === 13) {
+                console.log('enter');
+                searchInput = document.getElementById("searchBar");
+                value = searchInput.value.replace(" ", "-");
+                method = 'search';
+                pg_num = 1;
+                update_item(value);
+            }
+        }
+
+        function previous_week() {
+            var previous_element = $('#previous_page').children();
+            var next_element = $('#next_page').children();
+            if (pg_num === 1) {
+                $('#previous_page').unbind('click');
+                previous_element[0].style.color = 'grey'
+            }
+            else {
+                previous_element[0].style.color = '';
+                next_element[0].style.color = '';
+                pg_num--;
+                update_item();
+            }
+        }
+
+        function next_week() {
+            var next_element = $('#next_page').children();
+            var previous_element = $('#previous_page').children();
+            if (pg_num > parseInt(totalPages)){
+                $('#next_page').unbind('click');
+                next_element[0].style.color = 'grey'
+            }
+            else {
+                next_element[0].style.color = '';
+                previous_element[0].style.color = '';
+                pg_num++;
+                update_item();
+            }
+        }
+
+        function clickAllArticles() {
+            method = "index";
+            pg_num = 1;
+            update_item();
+        }
+    </script>
+
+{% endblock %}

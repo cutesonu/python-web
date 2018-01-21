@@ -1,0 +1,189 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+    {% load staticfiles %}
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 15px;
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: grey;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 15px;
+            width: 15px;
+            left: 3px;
+            bottom: 0px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: #00c108;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px white;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        /* Rounded sliders */
+        .slider.round {
+            border-radius: 20px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+    <div id="main" class="site-main admin-page">
+
+        <section class="events-list">
+
+            <div class="container container-960">
+
+                <h1 class="admin-page-title">Users</h1>
+
+                <div class="events-filter mb-20">
+                    <ul class="list-unstyled">
+                        <li class="ml-0"><a href="{% url 'user_create' %}">+ Add new user</a></li>
+                    </ul>
+                </div>
+
+                <div class="clearfix"></div>
+
+                <div class="table-responsive">
+
+                    <table class="admin-table table">
+                        <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th class="text-left">Firstname</th>
+                            <th class="text-left">Lastname</th>
+                            <th class="text-left">Active</th>
+                            <th class="text-left">Last active</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for profile in user_list %}
+
+                            <tr data-value="{{ profile.user.id }}">
+                                <td><img src="{% static 'dashboard/img/article.png' %}" alt="" class="title-img"><a
+                                        href="/c/people/{{ profile.user.id }}">{{ profile.user.username }}</a></td>
+                                <td class="user-email">{{ profile.user.email }}</td>
+                                <td class="text-left">{{ profile.user.first_name }}</td>
+                                <td class="text-left">{{ profile.user.last_name }}</td>
+                                <td class="text-left">
+                                    <label class="switch">
+                                        {% if profile.user.is_active %}
+                                            <input onchange="setActive({{ profile.user.id }}, this)" type="checkbox"
+                                                   checked>
+                                        {% else %}
+                                            <input type="checkbox" onchange="setActive({{ profile.user.id }}, this)">
+                                        {% endif %}
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                                {% if profile.invitation_status and not profile.user.last_login %}
+                                    <td class="text-left">Sent invitation email</td>
+                                {% elif not profile.invitation_status %}
+                                    <td class="text-left"><a
+                                            href="{% url 'user_invitation' %}?username={{ profile.user.username }}&email={{ profile.user.email }}&user_id={{ profile.user.id }}"
+                                            class="invitationEmail">Invite to join</a></td>
+                                {% else %}
+                                    <td class="text-left">{{ profile.user.last_login |date:'Y-m-d H:i' }}</td>
+                                {% endif %}
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+
+                </div><!-- /.table-responsive -->
+
+                <nav aria-label="News list navigation">
+                    <ul class="pagination text-center">
+                        <li class="pull-left text-pagination">
+
+                            <a href="?pg_num={% if pg_num <= 1 %}{{ pg_num }}{% else %}{{pg_num|add:"-1"}}{% endif %}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&larr; Prev Page</span>
+
+                            </a>
+                        </li>
+                        {% for i in total_pages %}
+                            {% if pg_num == forloop.counter %}
+                                <li class="active"><a href="?pg_num={{ forloop.counter }}">{{ forloop.counter }}</a>
+                                </li>
+                            {% else %}
+                                <li><a href="?pg_num={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                        <li class="pull-right text-pagination">
+                            <a href="?pg_num={% if pg_num < total_pages|length %}{{pg_num|add:"1"}}{% else %}{{ pg_num }}{% endif %}" aria-label="Next">
+                                <span aria-hidden="true">Next Page &rarr;</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <p class="total-items">{{ total_count }} total items</p>
+                </nav>
+
+
+            </div><!-- /.container-fluid -->
+
+        </section><!-- /.events-list -->
+
+    </div><!-- /#main -->
+{% endblock %}
+{% block customscript %}
+    <script>
+        function setActive(userId, obj) {
+
+            if (obj.checked) {
+                $.ajax({
+                    url: '/dashboard/users/' + userId + '/active',
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result)
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    url: '/dashboard/users/' + userId + '/inactive',
+                    dataType: 'json',
+                    success: function (result) {
+                        console.log(result)
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}

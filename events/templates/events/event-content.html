@@ -1,0 +1,43 @@
+{% load staticfiles %}
+
+{% if event_all %}
+
+    {% regroup event_all by start_date|date:"Y-m-d" as events_by_day %}
+
+    {% for day in events_by_day %}
+        <div class="row row-margin-1" id="{{ day.list.0.start_date|date:"Y-m-j" }}">
+            <div class="col-sm-12 col-xs-12">
+                <p class="events-date">{{ day.list.0.start_date|date:"l\, F j" }}</p>
+            </div>
+            {% for event in day.list %}
+                <div class="col-sm-3 col-xs-12">
+                    <div class="event-item">
+                        <p class="event-date">{{ event.start_date|date:"fA j N Y" }}</p>
+                        <h2 class="event-name"><a href="{{ event.id }}">{{ event.title }}</a></h2>
+                        <a href="{{ event.id }}" class="event-attending">posted
+                            by {{ event.author }}</a>
+                    </div><!-- /.event-item -->
+                </div>
+            {% endfor %}
+
+        </div><!-- /.row -->
+    {% endfor %}
+
+{% else %}
+    <p id="weekNone">Nothing this week!</p>
+{% endif %}
+<nav id="weekEvent" aria-label="Events list navigation" style="display: block;">
+    <ul class="pagination">
+        <li class="text-pagination">
+            <a href="javascript:previous_week();" aria-label="Previous" {% if not previous_page %}style="pointer-events: none"{% else %}{% endif %}>
+                <span aria-hidden="true" {% if not previous_page %}style="color: grey"{% else %}{% endif %}>&larr; Prev Week</span>
+            </a>
+        </li>
+        <li class="text-pagination">
+            <a href="javascript:next_week();" aria-label="Next" {% if not next_page %}style="pointer-events: none"{% else %}{% endif %}>
+                <span aria-hidden="true" {% if not next_page %}style="color: grey"{% else %}{% endif %}>Next Week &rarr;</span>
+            </a>
+        </li>
+    </ul>
+
+</nav>
